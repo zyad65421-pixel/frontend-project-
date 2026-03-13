@@ -33,6 +33,11 @@ Welcome to my frontend showcase! This repository is a curated collection of high
 - **Key Features:** Real-time data visualization components.
 - [🔗 View Project](#) | [💻 Source Code](./Cyber%20security)
 
+#### 🔴 Red Project
+> A bold and modern UI design focusing on vibrant color schemes and sleek animations.
+- **Key Features:** High-impact visual hierarchy and pixel-perfect responsiveness.
+- [🔗 View Project](#) | [💻 Source Code](./red)
+
 ---
 
 ### 📈 GitHub Stats
