@@ -1,5 +1,7 @@
 # 💰 Masarify - Modern Personal Finance Tracker
 
+![Masarify Dashboard Screenshot](./img.png)
+
 **Masarify (مصاريفي اليومية)** is a sleek, high-performance web application designed to help users track their daily expenses and manage their monthly budgets with an intuitive and secure interface.
 
 ---
