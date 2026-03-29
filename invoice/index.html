@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المصاريف اليومية</title>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Background glowing orbs -->
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modals -->
+    <!-- Custom Clear Confirm Modal -->
+    <div id="confirmModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-icon-wrapper danger-bg">
+                <i class="fa-solid fa-triangle-exclamation modal-icon danger-text"></i>
+            </div>
+            <h3>هل أنت متأكد؟</h3>
+            <p>سيتم مسح جميع بيانات المصاريف نهائياً ولا يمكن استرجاعها.</p>
+            <div class="modal-actions">
+                <button id="cancelClearBtn" class="btn-cancel">إلغاء</button>
+                <button id="confirmClearBtn" class="btn-danger">نعم، امسح كل شيء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Set Budget Modal -->
+    <div id="budgetModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-icon-wrapper primary-bg">
+                <i class="fa-solid fa-piggy-bank modal-icon primary-text"></i>
+            </div>
+            <h3>تحديد ميزانية الشهر 🎯</h3>
+            <p>ضع حداً لمصروفاتك الشهرية لمساعدتك في التحكم فيها.</p>
+            <div class="form-group" style="text-align: right;">
+                <label for="budgetInput">مبلغ الميزانية الإجمالي</label>
+                <div class="input-with-icon">
+                    <input type="number" id="budgetInput" placeholder="مثال: 5000" min="0" step="10">
+                    <span class="currency-label">ج.م</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelBudgetBtn" class="btn-cancel">إلغاء</button>
+                <button id="saveBudgetBtn" class="btn-save">حفظ الميزانية</button>
+            </div>
+        </div>
+    </div>
+
+
+    <main class="dashboard-container">
+        
+        <header class="dashboard-header animate-fade-in">
+            <div class="header-titles">
+                <h1>مصاريفي اليومية 💰</h1>
+                <p>تتبع فواتيرك وميزانيتك بأسلوب عصري</p>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="btn-icon" title="تغيير المظهر">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="date-display" id="currentDate"></div>
+            </div>
+        </header>
+
+        <!-- Dynamic Budget Card -->
+        <section class="budget-section animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="card budget-card">
+                <div class="budget-header">
+                    <div class="budget-info">
+                        <h3>الميزانية الشهرية <span id="budgetStatusEmoji">😎</span></h3>
+                        <p id="budgetTextMessage">تحكم في مصاريفك بذكاء</p>
+                    </div>
+                    <button id="editBudgetBtn" class="btn-icon circle-btn" title="تحديد الميزانية">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </div>
+                
+                <div class="budget-progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="budgetProgressBar"></div>
+                    </div>
+                </div>
+
+                <div class="budget-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">الميزانية</span>
+                        <span class="stat-value" id="totalBudgetDisplay">0 ج.م</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">المنصرف</span>
+                        <span class="stat-value" id="spentBudgetDisplay">0 ج.م</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">المتبقي</span>
+                        <span class="stat-value highlight" id="remainingBudgetDisplay">0 ج.م</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Cards -->
+        <section class="summary-cards animate-slide-up" style="animation-delay: 0.2s;">
+            <div class="card summary-card gradient-1">
+                <div class="card-icon"><i class="fa-solid fa-wallet"></i></div>
+                <div class="card-info">
+                    <h3>صرفيات اليوم</h3>
+                    <h2 id="todayTotal">0 ج.م</h2>
+                </div>
+            </div>
+            <div class="card summary-card gradient-2">
+                <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div class="card-info">
+                    <h3>أساسيات وفواتير الشهر</h3>
+                    <h2 id="utilitiesTotal">0 ج.م</h2>
+                </div>
+            </div>
+            <div class="card summary-card gradient-3">
+                <div class="card-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div class="card-info">
+                    <h3>مشتريات أخرى للشهر</h3>
+                    <h2 id="purchasesTotal">0 ج.م</h2>
+                </div>
+            </div>
+            <div class="card summary-card gradient-4">
+                <div class="card-icon"><i class="fa-regular fa-calendar"></i></div>
+                <div class="card-info">
+                    <h3>إجمالي ما صُرف هذا الشهر</h3>
+                    <h2 id="monthTotal">0 ج.م</h2>
+                </div>
+            </div>
+        </section>
+
+        <div class="main-content">
+            
+            <div class="left-column animate-slide-up" style="animation-delay: 0.3s;">
+                <!-- Add Expense Form -->
+                <section class="add-expense-section card mb-2">
+                    <h2><div class="icon-bg"><i class="fa-solid fa-plus"></i></div> إضافة مصروف جديد</h2>
+                    <form id="expenseForm">
+                        
+                        <div class="form-group">
+                            <label for="expenseTitle">فيما صرفت المبلغ؟ (الوصف)</label>
+                            <input type="text" id="expenseTitle" placeholder="مثال: فاتورة كهرباء، عشاء، سينما..." required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expenseAmount">المبلغ المدفوع</label>
+                            <div class="input-with-icon">
+                                <input type="number" id="expenseAmount" placeholder="0" min="0" step="0.01" required>
+                                <span class="currency-label">ج.م</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expenseCategory">التصنيف لتحليل أفضل</label>
+                            <select id="expenseCategory" required>
+                                <option value="utilities">الكهرباء والنور والمياه</option>
+                                <option value="groceries">مشتريات وبقالة</option>
+                                <option value="housing">إيجار أو سكن</option>
+                                <option value="transportation">مواصلات وبنزين</option>
+                                <option value="entertainment">ترفيه وفسح</option>
+                                <option value="health">صحة وأدوية</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            إضافة للمحفظة <i class="fa-solid fa-plus-circle"></i>
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Chart Section -->
+                <section class="chart-section card">
+                    <h2><div class="icon-bg chart-icon"><i class="fa-solid fa-chart-pie"></i></div> إحصائيات الشهر</h2>
+                    <div class="chart-container">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Recent Expenses List -->
+            <section class="recent-expenses-section card right-column animate-slide-up" style="animation-delay: 0.4s;">
+                <div class="section-header">
+                    <h2><div class="icon-bg list-icon"><i class="fa-solid fa-list"></i></div> سجل المصاريف</h2>
+                    <div class="header-filters">
+                        <select id="filterCategory" class="filter-select" title="تصفية حسب التصنيف">
+                            <option value="all">كل التصنيفات</option>
+                            <option value="utilities">الكهرباء والمياه</option>
+                            <option value="groceries">مشتريات وبقالة</option>
+                            <option value="housing">إيجار أو سكن</option>
+                            <option value="transportation">مواصلات</option>
+                            <option value="entertainment">ترفيه</option>
+                            <option value="health">صحة</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                        <button class="btn-export" id="exportCSV" title="تصدير (Excel) / CSV"><i class="fa-solid fa-download"></i></button>
+                        <button class="btn-clear-icon" id="triggerClearData" title="مسح كل البيانات"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                
+                <div class="expenses-list" id="expensesList">
+                    <!-- Expenses will be populated here via JavaScript -->
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                        <p>لا توجد مصاريف مسجلة حتى الآن.</p>
+                        <small>ابدأ بتسجيل مصاريفك لتظهر الحركات هنا</small>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
